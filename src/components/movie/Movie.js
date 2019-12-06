@@ -15,38 +15,53 @@ class Movie extends Component {
     }
 
     componentDidMount(){
-        fetch('http://localhost:8000/api/movie/'+ this.props.match.params.id)
+        let products = {};
+        if(localStorage.getItem('products') != null){
+            products = JSON.parse(localStorage.getItem('products'))
+        }
+
+        this.setState({product:products[this.props.match.params.id],movie: products[this.props.match.params.id]});
+
+
+        /*fetch('http://localhost:8000/api/movie/'+ this.props.match.params.id)
             .then(response => response.json())
             .then(product =>{
                 this.setState({product,movie: product});
             })
             .catch(err => {
                 console.error(err)
-            });
-    }
-
-    rented(rent){
-        if(rent){
-            return (
-                <a className="btn btn-secondary" onClick={()=>this.setRented(false)}>
-                    Devolver película
-                </a>
-            );
-        }
-        else{
-            return (
-                <a className="btn btn-info" onClick={()=>this.setRented(true)}>
-                    Alquilar película
-                </a>
-            );
-        }
+            });*/
     }
 
     setRented(rent){
         this.setState({edit:false});
 
-        const product = this.state.product;
-        let type = "/return";
+
+        let products = {};
+        if(localStorage.getItem('products') != null){
+            products = JSON.parse(localStorage.getItem('products'))
+        }
+        console.log(products[this.props.match.params.id])
+        if(typeof products[this.props.match.params.id].rented !== 'undefined'){
+            if(products[this.props.match.params.id].rented){
+                console.log('existe y la alquila')
+                products[this.props.match.params.id].rented = false;
+            }
+            else{
+                console.log('existe y la devuelve')
+                products[this.props.match.params.id].rented = true;
+            }
+        }
+        else{
+            console.log('no existe')
+            products[this.props.match.params.id].rented = true;
+        }
+        this.setState({product : products[this.props.match.params.id]})
+        localStorage.setItem('products', JSON.stringify(products));
+
+
+        /*let type = "/return";
+
         if(rent)type = "/rent";
 
         fetch('http://localhost:8000/api/movie/'+ this.props.match.params.id+type,{
@@ -67,11 +82,24 @@ class Movie extends Component {
             })
             .catch(err => {
                 console.error(err)
-            });
+            });*/
     }
 
     deleteMovie(){
-        fetch('http://localhost:8000/api/movie/'+ this.props.match.params.id,{
+
+        let products = {};
+        if(localStorage.getItem('products') != null){
+            products = JSON.parse(localStorage.getItem('products'))
+        }
+        
+        if(products[this.props.match.params.id] !== 'undefined'){
+            delete products[this.props.match.params.id];
+        }
+
+        localStorage.setItem('products', JSON.stringify(products));
+        document.location.href = '/catalog';
+
+        /*fetch('http://localhost:8000/api/movie/'+ this.props.match.params.id,{
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
@@ -88,8 +116,27 @@ class Movie extends Component {
             })
             .catch(err => {
                 console.error(err)
-            });
+            });*/
     }
+
+    rented(rent){
+        if(rent){
+            return (
+                <a className="btn btn-secondary" onClick={()=>this.setRented(false)}>
+                    Devolver película
+                </a>
+            );
+        }
+        else{
+            return (
+                <a className="btn btn-info" onClick={()=>this.setRented(true)}>
+                    Alquilar película
+                </a>
+            );
+        }
+    }
+
+
 
     editMovie(){
         if(this.state.edit){
@@ -104,7 +151,7 @@ class Movie extends Component {
         return (
             <div className="row">
                 <div className="col-sm-4">
-                    <img src={this.state.product.poster} alt="Prueba" />
+                    <img src={this.state.product.poster} alt="Prueba" width="100%" />
                 </div>
                 <div className="col-sm-8">
                     <h2>{this.state.product.title}</h2>

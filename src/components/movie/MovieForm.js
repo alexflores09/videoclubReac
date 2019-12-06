@@ -19,29 +19,28 @@ class MovieForm extends Component {
         })
     }
 
-    getButton(){
-        if(this.state.edit){
-            return (
-                <label>
-                    <i className="far fa-edit" />
-                    Modificar película
-                </label>
-            );
-        }
-        else{
-            return (
-                <label>
-                    <i className="fas fa-plus-circle" />
-                    Agregar película
-                </label>
-            );
-        }
-    }
-
     saveMovie(e){
         e.preventDefault();
+        let products = {};
+        if(localStorage.getItem('products') != null){
+            products = JSON.parse(localStorage.getItem('products'))
+        }
 
         if(this.state.movie.id){
+            products[this.state.movie.id] = this.state.movie;
+        }
+        else{
+            const id = ( Object.keys(products).length * 1 ) + 1;
+            products[id] = this.state.movie;
+            products[id].id = id;
+        }
+
+        localStorage.setItem('products', JSON.stringify(products));
+
+        document.location.href = '/catalog';
+
+
+        /*if(this.state.movie.id){
             fetch('http://localhost:8000/api/movie/'+ this.state.movie.id, {
                 method: 'PUT',
                 headers: {
@@ -84,8 +83,29 @@ class MovieForm extends Component {
                 .catch(err => {
                     console.error(err)
                 });
+        }*/
+    }
+
+    getButton(){
+        if(this.state.edit){
+            return (
+                <label>
+                    <i className="far fa-edit" />
+                    Modificar película
+                </label>
+            );
+        }
+        else{
+            return (
+                <label>
+                    <i className="fas fa-plus-circle" />
+                    Agregar película
+                </label>
+            );
         }
     }
+
+    
 
     handleInput(key, e) {
         const state = Object.assign({}, this.state.movie);
